@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐊 악어의 곱셈 식사</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Jua', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 시작 화면 */
+        #start-screen {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background: linear-gradient(180deg, #4a9c6d 0%, #2d5a3d 100%);
+        }
+
+        .title {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 4px 4px 0 #2d5a3d, 8px 8px 0 rgba(0,0,0,0.2);
+            margin-bottom: 1rem;
+            animation: titleBounce 1s ease-in-out infinite;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .start-croc {
+            font-size: 5rem;
+            animation: crocWiggle 0.5s ease-in-out infinite;
+        }
+
+        @keyframes crocWiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 1.2rem;
+            max-width: 400px;
+            margin: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .instructions h2 {
+            color: #2d5a3d;
+            margin-bottom: 0.6rem;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            color: #444;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .instructions .highlight {
+            background: #FFE066;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        #start-btn {
+            background: linear-gradient(180deg, #FF6B6B 0%, #EE5A5A 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.6rem;
+            font-family: 'Black Han Sans', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #c94444, 0 15px 30px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+            margin-top: 1rem;
+        }
+
+        #start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #c94444;
+        }
+
+        /* 게임 화면 */
+        #game-screen {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
+        }
+
+        /* 물 배경 */
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 10%;
+            background: linear-gradient(180deg, #2980B9 0%, #1A5276 100%);
+            z-index: 2;
+        }
+
+        .water::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 30'%3E%3Cpath fill='%232980B9' d='M0,15 Q150,5 300,15 T600,15 T900,15 T1200,15 V30 H0 Z'/%3E%3C/svg%3E");
+            background-size: 600px 25px;
+            animation: waves 4s ease-in-out infinite;
+        }
+
+        @keyframes waves {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-100px); }
+        }
+
+        /* 점수 */
+        #score-display {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 3px 3px 0 #1a5276;
+            z-index: 50;
+        }
+
+        /* 타이머 바 */
+        #timer-bar-container {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 150px;
+            height: 20px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 50;
+            display: none;
+            border: 3px solid #fff;
+        }
+
+        #timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
+            border-radius: 6px;
+            transition: width 0.1s linear;
+        }
+
+        /* 음소거 버튼 */
+        #mute-btn {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 50;
+        }
+
+        /* 생선 */
+        #fish {
+            position: absolute;
+            left: 50%;
+            bottom: 3%;
+            transform: translateX(-50%);
+            z-index: 60;
+            opacity: 0;
+        }
+
+        #fish.jumping {
+            animation: fishJump 0.8s ease-out forwards;
+        }
+
+        @keyframes fishJump {
+            0% { 
+                bottom: 3%;
+                opacity: 1;
+                transform: translateX(-50%) scale(0.8);
+            }
+            60% {
+                bottom: 75%;
+                transform: translateX(-50%) scale(1);
+            }
+            100% { 
+                bottom: 72%;
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        #fish.floating {
+            bottom: 72%;
+            opacity: 1;
+            animation: fishFloat 1s ease-in-out infinite;
+        }
+
+        @keyframes fishFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+            50% { transform: translateX(-50%) translateY(-10px) rotate(3deg); }
+        }
+
+        #fish.eating {
+            animation: fishEaten 0.4s ease-in forwards;
+        }
+
+        @keyframes fishEaten {
+            0% {
+                bottom: 72%;
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+            100% { 
+                bottom: 45%;
+                transform: translateX(-50%) scale(0.1);
+                opacity: 0;
+            }
+        }
+
+        #fish.falling {
+            animation: fishFall 0.6s ease-in forwards;
+        }
+
+        @keyframes fishFall {
+            0% { 
+                bottom: 72%;
+                transform: translateX(-50%) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                bottom: 3%;
+                transform: translateX(-50%) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        .fish-body {
+            width: 110px;
+            height: 70px;
+            background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .fish-tail {
+            position: absolute;
+            right: -18px;
+            width: 25px;
+            height: 35px;
+            background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%);
+            clip-path: polygon(0 50%, 100% 0, 100% 100%);
+        }
+
+        .fish-eye {
+            position: absolute;
+            left: 16px;
+            top: 12px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .fish-eye::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            width: 7px;
+            height: 7px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .fish-question {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.3rem;
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+            margin-left: 8px;
+        }
+
+        /* 악어 컨테이너 */
+        #croc-container {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 95vw;
+            max-width: 550px;
+            height: 60vh;
+        }
+
+        /* 악어 몸통 */
+        #croc-body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 70px;
+            background: linear-gradient(180deg, #4A7C59 0%, #3d6b4a 100%);
+            border-radius: 50% 50% 50% 50% / 100% 100% 0% 0%;
+            z-index: 1;
+        }
+
+        /* 입 안쪽 */
+        #mouth-inside {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(95% - 30px);
+            height: 120px;
+            background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
+            border-radius: 30px 30px 50% 50% / 30px 30px 100% 100%;
+            z-index: 4;
+            box-shadow: inset 0 -10px 50px rgba(0,0,0,0.9);
+            transition: height 0.5s ease-out;
+        }
+
+        #mouth-inside.open {
+            height: 280px;
+        }
+
+        #mouth-inside.closing {
+            transition: height 6.5s linear;
+            height: 120px;
+        }
+
+        /* 목구멍 답 표시 */
+        #throat-answer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3.5rem;
+            color: #FFFFFF;
+            text-shadow: 0 0 30px rgba(255,255,255,0.9), 4px 4px 10px #000;
+            z-index: 6;
+            opacity: 0;
+        }
+
+        #throat-answer.show {
+            opacity: 1;
+        }
+
+        /* 혀 */
+        .tongue {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 40px;
+            background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            z-index: 5;
+        }
+
+        /* 아랫턱 */
+        #lower-jaw {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            height: 120px;
+            z-index: 20;
+        }
+
+        /* 아랫턱 잇몸 - 이빨 뿌리만 덮도록 */
+        .lower-jaw-base {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55px;
+            background: linear-gradient(180deg, #5A8C69 0%, #4A7C59 100%);
+            border-radius: 0 0 50% 50% / 0 0 100% 100%;
+            z-index: 22;
+        }
+
+        /* 아랫니 - 잇몸 위로 충분히 올림 */
+        #lower-teeth {
+            position: absolute;
+            bottom: 45px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #lower-teeth.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 이빨 버튼 */
+        .tooth-btn {
+            width: 9vw;
+            max-width: 42px;
+            height: 13vw;
+            max-height: 65px;
+            background: linear-gradient(180deg, #FFFEF0 0%, #F0F0E0 50%, #E8E8D8 100%);
+            border: none;
+            border-radius: 6px 6px 50% 50%;
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.4rem;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 8px;
+            box-shadow: 
+                inset 0 -5px 10px rgba(0,0,0,0.1),
+                0 4px 8px rgba(0,0,0,0.3);
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .tooth-btn:hover {
+            background: linear-gradient(180deg, #FFFEF0 0%, #FFF8DC 50%, #FFE066 100%);
+            transform: translateY(-3px);
+        }
+
+        .tooth-btn:active, .tooth-btn.selected {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            transform: translateY(2px);
+            box-shadow: 
+                inset 0 3px 8px rgba(0,0,0,0.2),
+                0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* 윗턱 */
+        #upper-jaw {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            width: 95%;
+            height: 200px;
+            transition: transform 0.5s ease-out;
+            z-index: 30;
+        }
+
+        #upper-jaw.open {
+            transform: translateX(-50%) translateY(-200px);
+        }
+
+        #upper-jaw.closing {
+            transition: transform 6.5s linear;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .upper-jaw-base {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 170px;
+            background: linear-gradient(180deg, #3d6b4a 0%, #5A8C69 100%);
+            border-radius: 50% 50% 8% 8% / 45% 45% 8% 8%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            z-index: 2;
+        }
+
+        /* 콧구멍 */
+        .nostril {
+            position: absolute;
+            top: 22px;
+            width: 14px;
+            height: 10px;
+            background: #2d4a35;
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        .nostril.left { left: 38%; }
+        .nostril.right { right: 38%; }
+
+        /* 눈 */
+        .eye {
+            position: absolute;
+            top: 50px;
+            width: 45px;
+            height: 45px;
+            background: #FFFEF0;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            z-index: 3;
+        }
+
+        .eye.left { left: 18%; }
+        .eye.right { right: 18%; }
+
+        .pupil {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: #111;
+            border-radius: 50%;
+        }
+
+        .pupil::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 6px;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        /* 윗니 - 입술 뒤에서 아래로 날카롭게 */
+        .upper-teeth-row {
+            position: absolute;
+            bottom: -30px;
+            left: 18px;
+            right: 18px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1;
+        }
+
+        .upper-tooth {
+            width: 8vw;
+            max-width: 34px;
+            height: 45px;
+            background: linear-gradient(180deg, #F5F5E8 0%, #FFFEF0 100%);
+            border: none;
+            clip-path: polygon(10% 0%, 90% 0%, 50% 100%);
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        /* 퐁당 이펙트 */
+        #splash-container {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+
+        .splash {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, #87CEEB 0%, #3498DB 100%);
+            border-radius: 50%;
+            animation: splashDrop 0.7s ease-out forwards;
+        }
+
+        @keyframes splashDrop {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        .splash-ring {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            border: 4px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            animation: splashRing 0.9s ease-out forwards;
+        }
+
+        @keyframes splashRing {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(5); opacity: 0; }
+        }
+
+        #splash-text {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3.5rem;
+            color: #3498DB;
+            text-shadow: 4px 4px 0 #fff, -3px -3px 0 #fff;
+            z-index: 101;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #splash-text.show {
+            animation: splashTextPop 1s ease-out forwards;
+        }
+
+        @keyframes splashTextPop {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+            30% { opacity: 1; transform: translateX(-50%) scale(1.3); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-50px); }
+        }
+
+        /* 냠냠 텍스트 */
+        #yum-text {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 2.5rem;
+            color: #e74c3c;
+            text-shadow: 4px 4px 0 #fff;
+            opacity: 0;
+            z-index: 50;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        #yum-text.show {
+            animation: yumPop 0.8s ease-out forwards;
+        }
+
+        @keyframes yumPop {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.3); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-50px); }
+        }
+
+        /* 성공 파티클 */
+        .success-particles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 1.8rem;
+            animation: particleFly 1s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+
+        /* 게임 오버 화면 */
+        #gameover-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+        }
+
+        #gameover-screen.show {
+            display: flex;
+        }
+
+        .gameover-text {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3.5rem;
+            color: #e74c3c;
+            text-shadow: 5px 5px 0 #000;
+            margin-bottom: 0.5rem;
+        }
+
+        .final-score {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 2rem;
+            color: #FFE066;
+            margin-bottom: 1rem;
+        }
+
+        .crying-croc {
+            font-size: 8rem;
+            animation: cryShake 0.3s ease-in-out infinite;
+        }
+
+        @keyframes cryShake {
+            0%, 100% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+        }
+
+        #restart-btn {
+            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.5rem;
+            font-family: 'Black Han Sans', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1e8449;
+            margin-top: 1rem;
+        }
+
+        #restart-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #1e8449;
+        }
+    </style>
+</head>
+<body>
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+        <div class="title">🐊 악어의 곱셈 식사</div>
+        <div class="start-croc">🐊</div>
+        <div class="instructions">
+            <h2>🎮 게임 방법</h2>
+            <p>
+                배고픈 악어에게 <span class="highlight">곱셈 생선</span>을 먹여주세요!<br><br>
+                1️⃣ 물에서 생선이 뛰어올라요 🐟<br>
+                2️⃣ 악어 입이 열리면 <span class="highlight">아랫니 숫자</span>를 눌러 답 입력!<br>
+                3️⃣ 정답이면 악어가 맛있게 냠냠~<br>
+                4️⃣ 틀리면 생선이 물에 퐁당! 게임 오버 😢<br><br>
+                ⚠️ 잘못 누른 숫자는 다시 누르면 취소!<br>
+                ⏰ 악어 입이 닫히기 전에 답을 맞춰야 해요!
+            </p>
+        </div>
+        <button id="start-btn">🐊 시작하기!</button>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div id="game-screen">
+        <div class="water"></div>
+        
+        <div id="score-display">🐟 점수: <span id="score">0</span></div>
+        
+        <div id="timer-bar-container">
+            <div id="timer-bar"></div>
+        </div>
+
+        <button id="mute-btn">🔊</button>
+
+        <!-- 생선 -->
+        <div id="fish">
+            <div class="fish-body">
+                <div class="fish-eye"></div>
+                <div class="fish-tail"></div>
+                <span class="fish-question" id="fish-question">9×8</span>
+            </div>
+        </div>
+
+        <!-- 냠냠 텍스트 -->
+        <div id="yum-text">냠냠! 맛있다~</div>
+
+        <!-- 퐁당 텍스트 -->
+        <div id="splash-text">퐁당!</div>
+
+        <!-- 퐁당 이펙트 컨테이너 -->
+        <div id="splash-container"></div>
+
+        <!-- 악어 -->
+        <div id="croc-container">
+            <!-- 입 안쪽 -->
+            <div id="mouth-inside">
+                <div id="throat-answer"></div>
+                <div class="tongue"></div>
+            </div>
+
+            <!-- 윗턱 -->
+            <div id="upper-jaw">
+                <!-- 윗니: 입술(upper-jaw-base) 뒤에 배치 -->
+                <div class="upper-teeth-row">
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                    <div class="upper-tooth"></div>
+                </div>
+                <!-- 입술(윗턱 피부) - 윗니 위에 렌더링 -->
+                <div class="upper-jaw-base">
+                    <div class="nostril left"></div>
+                    <div class="nostril right"></div>
+                    <div class="eye left"><div class="pupil"></div></div>
+                    <div class="eye right"><div class="pupil"></div></div>
+                </div>
+            </div>
+
+            <!-- 아랫턱 -->
+            <div id="lower-jaw">
+                <!-- 아랫니 (숫자 버튼) -->
+                <div id="lower-teeth">
+                    <button class="tooth-btn" data-num="1">1</button>
+                    <button class="tooth-btn" data-num="2">2</button>
+                    <button class="tooth-btn" data-num="3">3</button>
+                    <button class="tooth-btn" data-num="4">4</button>
+                    <button class="tooth-btn" data-num="5">5</button>
+                    <button class="tooth-btn" data-num="6">6</button>
+                    <button class="tooth-btn" data-num="7">7</button>
+                    <button class="tooth-btn" data-num="8">8</button>
+                    <button class="tooth-btn" data-num="9">9</button>
+                    <button class="tooth-btn" data-num="0">0</button>
+                </div>
+                <!-- 아랫턱 잇몸 -->
+                <div class="lower-jaw-base"></div>
+            </div>
+
+            <!-- 몸통 -->
+            <div id="croc-body"></div>
+        </div>
+    </div>
+
+    <!-- 게임오버 화면 -->
+    <div id="gameover-screen">
+        <div class="crying-croc">😢🐊</div>
+        <div class="gameover-text">게임 오버!</div>
+        <div class="final-score">최종 점수: <span id="final-score">0</span>마리</div>
+        <button id="restart-btn">🔄 다시 하기</button>
+    </div>
+
+    <script>
+        // 오디오 컨텍스트
+        let audioCtx = null;
+        let isMuted = false;
+        let bgmInterval = null;
+        let currentBgm = null;
+
+        // 오디오 초기화
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // 음 재생 함수
+        function playTone(frequency, duration, type = 'sine', volume = 0.3) {
+            if (isMuted || !audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.type = type;
+            oscillator.frequency.value = frequency;
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        // 효과음들
+        function playClickSound() {
+            playTone(800, 0.1, 'square', 0.2);
+        }
+
+        function playCorrectSound() {
+            playTone(523, 0.15, 'sine', 0.4);
+            setTimeout(() => playTone(659, 0.15, 'sine', 0.4), 100);
+            setTimeout(() => playTone(784, 0.2, 'sine', 0.4), 200);
+        }
+
+        function playSplashSound() {
+            playTone(200, 0.3, 'sine', 0.3);
+            setTimeout(() => playTone(150, 0.2, 'sine', 0.2), 100);
+        }
+
+        function playJumpSound() {
+            playTone(400, 0.1, 'sine', 0.2);
+            setTimeout(() => playTone(600, 0.1, 'sine', 0.2), 50);
+            setTimeout(() => playTone(800, 0.15, 'sine', 0.2), 100);
+        }
+
+        // 게임 BGM (즐거운 멜로디)
+        function playGameBGM() {
+            if (isMuted) return;
+            
+            const melody = [
+                { note: 523, dur: 0.2 }, // C
+                { note: 587, dur: 0.2 }, // D
+                { note: 659, dur: 0.2 }, // E
+                { note: 523, dur: 0.2 }, // C
+                { note: 659, dur: 0.2 }, // E
+                { note: 698, dur: 0.2 }, // F
+                { note: 659, dur: 0.4 }, // E
+                { note: 587, dur: 0.2 }, // D
+                { note: 523, dur: 0.2 }, // C
+                { note: 587, dur: 0.2 }, // D
+                { note: 659, dur: 0.2 }, // E
+                { note: 587, dur: 0.2 }, // D
+                { note: 523, dur: 0.2 }, // C
+                { note: 493, dur: 0.2 }, // B
+                { note: 523, dur: 0.4 }, // C
+            ];
+            
+            let noteIndex = 0;
+            
+            function playNextNote() {
+                if (isMuted || !audioCtx) return;
+                
+                const { note, dur } = melody[noteIndex];
+                playTone(note, dur, 'triangle', 0.15);
+                
+                noteIndex = (noteIndex + 1) % melody.length;
+            }
+            
+            playNextNote();
+            bgmInterval = setInterval(playNextNote, 250);
+        }
+
+        // BGM 정지
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        // 게임오버 음악
+        function playGameOverMusic() {
+            if (isMuted) return;
+            
+            const sadMelody = [
+                { note: 392, dur: 0.4 }, // G
+                { note: 349, dur: 0.4 }, // F
+                { note: 330, dur: 0.4 }, // E
+                { note: 294, dur: 0.6 }, // D
+                { note: 262, dur: 0.8 }, // C
+            ];
+            
+            let delay = 0;
+            sadMelody.forEach(({ note, dur }) => {
+                setTimeout(() => playTone(note, dur, 'sine', 0.25), delay);
+                delay += dur * 400;
+            });
+        }
+
+        // 게임 상태
+        let score = 0;
+        let currentAnswer = 0;
+        let inputAnswer = [];
+        let selectedButtons = [];
+        let gameActive = false;
+        let timerInterval = null;
+        let timeLeft = 130;
+
+        // 랜덤 대사
+        const yumMessages = [
+            "냠냠! 맛있다~",
+            "우와! 최고야!",
+            "정답! 천재인걸?",
+            "맛있어~ 또 줘!",
+            "굿굿! 잘했어!",
+            "완벽해! 대단해!",
+            "쩔어! 역시 너야!"
+        ];
+
+        // DOM 요소
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const scoreDisplay = document.getElementById('score');
+        const finalScoreEl = document.getElementById('final-score');
+        const fish = document.getElementById('fish');
+        const fishQuestion = document.getElementById('fish-question');
+        const upperJaw = document.getElementById('upper-jaw');
+        const lowerTeeth = document.getElementById('lower-teeth');
+        const throatAnswer = document.getElementById('throat-answer');
+        const timerBarContainer = document.getElementById('timer-bar-container');
+        const timerBar = document.getElementById('timer-bar');
+        const yumText = document.getElementById('yum-text');
+        const splashText = document.getElementById('splash-text');
+        const splashContainer = document.getElementById('splash-container');
+        const mouthInside = document.getElementById('mouth-inside');
+
+        // 음소거 토글
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? '🔇' : '🔊';
+            if (isMuted) {
+                stopBGM();
+            } else if (gameActive) {
+                playGameBGM();
+            }
+        });
+
+        // 곱셈 문제 생성
+        function generateQuestion() {
+            const a = Math.floor(Math.random() * 9) + 1;
+            const b = Math.floor(Math.random() * 9) + 1;
+            currentAnswer = a * b;
+            fishQuestion.textContent = `${a}×${b}`;
+            inputAnswer = [];
+            selectedButtons = [];
+            updateThroatAnswer();
+            
+            document.querySelectorAll('.tooth-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+
+        // 목구멍 답 업데이트
+        function updateThroatAnswer() {
+            if (inputAnswer.length > 0) {
+                throatAnswer.textContent = inputAnswer.join('');
+                throatAnswer.classList.add('show');
+            } else {
+                throatAnswer.textContent = '';
+                throatAnswer.classList.remove('show');
+            }
+        }
+
+        // 게임 시작
+        function startGame() {
+            initAudio();
+            startScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            gameoverScreen.classList.remove('show');
+            score = 0;
+            scoreDisplay.textContent = score;
+            stopBGM();
+            playGameBGM();
+            nextRound();
+        }
+
+        // 다음 라운드
+        function nextRound() {
+            gameActive = false;
+            generateQuestion();
+            
+            fish.className = '';
+            upperJaw.classList.remove('open', 'closing');
+            mouthInside.classList.remove('open', 'closing');
+            lowerTeeth.classList.remove('show');
+            timerBarContainer.style.display = 'none';
+            throatAnswer.classList.remove('show');
+            
+            setTimeout(() => {
+                fish.classList.add('jumping');
+                playJumpSound();
+            }, 300);
+
+            setTimeout(() => {
+                fish.classList.remove('jumping');
+                fish.classList.add('floating');
+                openMouth();
+            }, 1100);
+        }
+
+        // 악어 입 열기
+        function openMouth() {
+            upperJaw.classList.add('open');
+            mouthInside.classList.add('open');
+            
+            setTimeout(() => {
+                gameActive = true;
+                lowerTeeth.classList.add('show');
+                timerBarContainer.style.display = 'block';
+                startTimer();
+            }, 500);
+        }
+
+        // 타이머 시작
+        function startTimer() {
+            timeLeft = 130;
+            timerBar.style.width = '100%';
+            
+            setTimeout(() => {
+                if (gameActive) {
+                    upperJaw.classList.remove('open');
+                    upperJaw.classList.add('closing');
+                    mouthInside.classList.remove('open');
+                    mouthInside.classList.add('closing');
+                }
+            }, 100);
+            
+            timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft -= 2;
+                timerBar.style.width = (timeLeft / 130 * 100) + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    gameActive = false;
+                    lowerTeeth.classList.remove('show');
+                    gameOver();
+                }
+            }, 100);
+        }
+
+        // 숫자 버튼 클릭
+        function handleNumberClick(num, btn) {
+            if (!gameActive) return;
+            
+            playClickSound();
+            
+            const btnIndex = selectedButtons.indexOf(btn);
+            if (btnIndex !== -1) {
+                selectedButtons.splice(btnIndex, 1);
+                inputAnswer.splice(btnIndex, 1);
+                btn.classList.remove('selected');
+                updateThroatAnswer();
+                return;
+            }
+            
+            inputAnswer.push(num);
+            selectedButtons.push(btn);
+            btn.classList.add('selected');
+            updateThroatAnswer();
+            
+            checkAnswer();
+        }
+
+        // 답 확인
+        function checkAnswer() {
+            const userAnswer = parseInt(inputAnswer.join(''));
+            const answerStr = currentAnswer.toString();
+            const inputStr = inputAnswer.join('');
+            
+            if (userAnswer === currentAnswer) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                lowerTeeth.classList.remove('show');
+                correctAnswer();
+                return;
+            }
+            
+            if (inputStr.length >= answerStr.length) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                lowerTeeth.classList.remove('show');
+                gameOver();
+            }
+        }
+
+        // 정답 처리
+        function correctAnswer() {
+            score++;
+            scoreDisplay.textContent = score;
+            playCorrectSound();
+            
+            fish.classList.remove('floating');
+            fish.classList.add('eating');
+            
+            upperJaw.classList.remove('open', 'closing');
+            mouthInside.classList.remove('open', 'closing');
+            timerBarContainer.style.display = 'none';
+            throatAnswer.classList.remove('show');
+            
+            const randomMessage = yumMessages[Math.floor(Math.random() * yumMessages.length)];
+            yumText.textContent = randomMessage;
+            yumText.classList.add('show');
+            setTimeout(() => yumText.classList.remove('show'), 800);
+            
+            createParticles();
+            
+            setTimeout(() => nextRound(), 1500);
+        }
+
+        // 파티클 생성
+        function createParticles() {
+            const container = document.createElement('div');
+            container.className = 'success-particles';
+            container.style.left = '50%';
+            container.style.top = '35%';
+            container.style.transform = 'translateX(-50%)';
+            gameScreen.appendChild(container);
+            
+            const emojis = ['⭐', '🌟', '✨', '💫', '🐟', '🎉'];
+            
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
+                container.appendChild(particle);
+            }
+            
+            setTimeout(() => container.remove(), 1000);
+        }
+
+        // 퐁당 이펙트
+        function createSplash() {
+            playSplashSound();
+            splashContainer.style.display = 'block';
+            splashContainer.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                const splash = document.createElement('div');
+                splash.className = 'splash';
+                splash.style.setProperty('--tx', (Math.random() - 0.5) * 150 + 'px');
+                splash.style.setProperty('--ty', -Math.random() * 100 - 30 + 'px');
+                splash.style.left = (Math.random() - 0.5) * 60 + 'px';
+                splash.style.animationDelay = Math.random() * 0.15 + 's';
+                splashContainer.appendChild(splash);
+            }
+            
+            for (let i = 0; i < 3; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'splash-ring';
+                ring.style.left = '-15px';
+                ring.style.animationDelay = i * 0.15 + 's';
+                splashContainer.appendChild(ring);
+            }
+            
+            splashText.classList.add('show');
+            
+            setTimeout(() => {
+                splashContainer.style.display = 'none';
+                splashText.classList.remove('show');
+            }, 1000);
+        }
+
+        // 게임 오버
+        function gameOver() {
+            stopBGM();
+            
+            fish.classList.remove('floating');
+            fish.classList.add('falling');
+            
+            timerBarContainer.style.display = 'none';
+            throatAnswer.classList.remove('show');
+            upperJaw.classList.remove('open', 'closing');
+            mouthInside.classList.remove('open', 'closing');
+            
+            setTimeout(() => createSplash(), 400);
+            
+            setTimeout(() => {
+                playGameOverMusic();
+                finalScoreEl.textContent = score;
+                gameoverScreen.classList.add('show');
+            }, 1500);
+        }
+
+        // 이벤트 리스너
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        document.querySelectorAll('.tooth-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleNumberClick(this.dataset.num, this);
+            });
+            
+            btn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                handleNumberClick(this.dataset.num, this);
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+            
+            if (e.key >= '0' && e.key <= '9') {
+                const btn = document.querySelector(`.tooth-btn[data-num="${e.key}"]`);
+                if (btn) handleNumberClick(e.key, btn);
+            }
+        });
+    </script>
+</body>
+</html>
