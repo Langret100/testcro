@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐊 악어의 곱셈 식사</title>
+    <title>🐊 악어의 숫자 식사</title>
     <link href="https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&display=swap" rel="stylesheet">
     <style>
         * {
@@ -274,7 +274,6 @@
         .fish-body {
             width: 110px;
             height: 70px;
-            background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%);
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
             position: relative;
             display: flex;
@@ -283,14 +282,40 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
+        /* 생선 종류별 색상 */
+        .fish-body.orange {
+            background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%);
+        }
+        .fish-body.blue {
+            background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+        }
+        .fish-body.pink {
+            background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%);
+        }
+        .fish-body.green {
+            background: linear-gradient(180deg, #55efc4 0%, #00b894 100%);
+        }
+        .fish-body.purple {
+            background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+        }
+        .fish-body.gold {
+            background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+        }
+
         .fish-tail {
             position: absolute;
             right: -18px;
             width: 25px;
             height: 35px;
-            background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%);
             clip-path: polygon(0 50%, 100% 0, 100% 100%);
         }
+
+        .fish-body.orange .fish-tail { background: linear-gradient(180deg, #FF9F43 0%, #e67e22 100%); }
+        .fish-body.blue .fish-tail { background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%); }
+        .fish-body.pink .fish-tail { background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%); }
+        .fish-body.green .fish-tail { background: linear-gradient(180deg, #55efc4 0%, #00b894 100%); }
+        .fish-body.purple .fish-tail { background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%); }
+        .fish-body.gold .fish-tail { background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%); }
 
         .fish-eye {
             position: absolute;
@@ -315,7 +340,7 @@
 
         .fish-question {
             font-family: 'Black Han Sans', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: white;
             text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
             margin-left: 8px;
@@ -346,28 +371,28 @@
             z-index: 1;
         }
 
-        /* 입 안쪽 */
+        /* 입 안쪽 - 아랫턱과 연결 */
         #mouth-inside {
             position: absolute;
-            bottom: 120px;
+            bottom: 115px;
             left: 50%;
             transform: translateX(-50%);
-            width: calc(95% - 30px);
-            height: 120px;
-            background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
-            border-radius: 30px 30px 50% 50% / 30px 30px 100% 100%;
+            width: calc(95% - 24px);
+            height: 130px;
+            background: linear-gradient(180deg, #2a0505 0%, #1a0000 50%, #0a0000 100%);
+            border-radius: 20px 20px 0 0;
             z-index: 4;
             box-shadow: inset 0 -10px 50px rgba(0,0,0,0.9);
             transition: height 0.5s ease-out;
         }
 
         #mouth-inside.open {
-            height: 280px;
+            height: 290px;
         }
 
         #mouth-inside.closing {
             transition: height 6.5s linear;
-            height: 120px;
+            height: 130px;
         }
 
         /* 목구멍 답 표시 */
@@ -412,27 +437,38 @@
             z-index: 20;
         }
 
-        /* 아랫턱 잇몸 - 이빨 뿌리만 덮도록 */
+        /* 아랫턱 잇몸 - 입 안쪽과 연결 */
         .lower-jaw-base {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 55px;
+            height: 75px;
             background: linear-gradient(180deg, #5A8C69 0%, #4A7C59 100%);
             border-radius: 0 0 50% 50% / 0 0 100% 100%;
             z-index: 22;
         }
 
-        /* 아랫니 - 잇몸 위로 충분히 올림 */
-        #lower-teeth {
+        /* 아랫턱 안쪽 (입 안쪽과 연결되는 부분) */
+        .lower-jaw-inner {
             position: absolute;
-            bottom: 45px;
+            bottom: 65px;
             left: 12px;
             right: 12px;
+            height: 20px;
+            background: linear-gradient(180deg, #0a0000 0%, #1a0000 100%);
+            z-index: 19;
+        }
+
+        /* 아랫니 - 입술 안쪽, 위가 뾰족 */
+        #lower-teeth {
+            position: absolute;
+            bottom: 60px;
+            left: 15px;
+            right: 15px;
             display: flex;
             justify-content: space-between;
-            z-index: 25;
+            z-index: 21;
             opacity: 0;
             pointer-events: none;
         }
@@ -442,23 +478,22 @@
             pointer-events: auto;
         }
 
-        /* 이빨 버튼 */
+        /* 이빨 버튼 - 위가 뾰족 */
         .tooth-btn {
             width: 9vw;
-            max-width: 42px;
+            max-width: 40px;
             height: 13vw;
-            max-height: 65px;
+            max-height: 60px;
             background: linear-gradient(180deg, #FFFEF0 0%, #F0F0E0 50%, #E8E8D8 100%);
             border: none;
-            border-radius: 6px 6px 50% 50%;
+            border-radius: 30% 30% 50% 50% / 20% 20% 50% 50%;
             font-family: 'Black Han Sans', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #333;
             cursor: pointer;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            padding-top: 8px;
             box-shadow: 
                 inset 0 -5px 10px rgba(0,0,0,0.1),
                 0 4px 8px rgba(0,0,0,0.3);
@@ -563,10 +598,10 @@
             border-radius: 50%;
         }
 
-        /* 윗니 - 입술 뒤에서 아래로 날카롭게 */
+        /* 윗니 - 입술 뒤에서 아래로, 옆으로 넓게 */
         .upper-teeth-row {
             position: absolute;
-            bottom: -30px;
+            bottom: -28px;
             left: 18px;
             right: 18px;
             display: flex;
@@ -575,12 +610,12 @@
         }
 
         .upper-tooth {
-            width: 8vw;
-            max-width: 34px;
-            height: 45px;
+            width: 9vw;
+            max-width: 40px;
+            height: 38px;
             background: linear-gradient(180deg, #F5F5E8 0%, #FFFEF0 100%);
             border: none;
-            clip-path: polygon(10% 0%, 90% 0%, 50% 100%);
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
         }
 
@@ -757,18 +792,19 @@
 <body>
     <!-- 시작 화면 -->
     <div id="start-screen">
-        <div class="title">🐊 악어의 곱셈 식사</div>
+        <div class="title">🐊 악어의 숫자 식사</div>
         <div class="start-croc">🐊</div>
         <div class="instructions">
             <h2>🎮 게임 방법</h2>
             <p>
-                배고픈 악어에게 <span class="highlight">곱셈 생선</span>을 먹여주세요!<br><br>
+                배고픈 악어에게 <span class="highlight">숫자 생선</span>을 먹여주세요!<br><br>
                 1️⃣ 물에서 생선이 뛰어올라요 🐟<br>
                 2️⃣ 악어 입이 열리면 <span class="highlight">아랫니 숫자</span>를 눌러 답 입력!<br>
                 3️⃣ 정답이면 악어가 맛있게 냠냠~<br>
                 4️⃣ 틀리면 생선이 물에 퐁당! 게임 오버 😢<br><br>
                 ⚠️ 잘못 누른 숫자는 다시 누르면 취소!<br>
-                ⏰ 악어 입이 닫히기 전에 답을 맞춰야 해요!
+                ⏰ 악어 입이 닫히기 전에 답을 맞춰야 해요!<br>
+                📝 곱셈과 나눗셈이 섞여서 나와요!
             </p>
         </div>
         <button id="start-btn">🐊 시작하기!</button>
@@ -788,7 +824,7 @@
 
         <!-- 생선 -->
         <div id="fish">
-            <div class="fish-body">
+            <div class="fish-body orange" id="fish-body">
                 <div class="fish-eye"></div>
                 <div class="fish-tail"></div>
                 <span class="fish-question" id="fish-question">9×8</span>
@@ -814,7 +850,7 @@
 
             <!-- 윗턱 -->
             <div id="upper-jaw">
-                <!-- 윗니: 입술(upper-jaw-base) 뒤에 배치 -->
+                <!-- 윗니: 입술 뒤에 배치 -->
                 <div class="upper-teeth-row">
                     <div class="upper-tooth"></div>
                     <div class="upper-tooth"></div>
@@ -826,7 +862,7 @@
                     <div class="upper-tooth"></div>
                     <div class="upper-tooth"></div>
                 </div>
-                <!-- 입술(윗턱 피부) - 윗니 위에 렌더링 -->
+                <!-- 입술(윗턱 피부) -->
                 <div class="upper-jaw-base">
                     <div class="nostril left"></div>
                     <div class="nostril right"></div>
@@ -837,6 +873,8 @@
 
             <!-- 아랫턱 -->
             <div id="lower-jaw">
+                <!-- 입 안쪽 연결부 -->
+                <div class="lower-jaw-inner"></div>
                 <!-- 아랫니 (숫자 버튼) -->
                 <div id="lower-teeth">
                     <button class="tooth-btn" data-num="1">1</button>
@@ -872,7 +910,6 @@
         let audioCtx = null;
         let isMuted = false;
         let bgmInterval = null;
-        let currentBgm = null;
 
         // 오디오 초기화
         function initAudio() {
@@ -925,26 +962,26 @@
             setTimeout(() => playTone(800, 0.15, 'sine', 0.2), 100);
         }
 
-        // 게임 BGM (즐거운 멜로디)
+        // 게임 BGM
         function playGameBGM() {
             if (isMuted) return;
             
             const melody = [
-                { note: 523, dur: 0.2 }, // C
-                { note: 587, dur: 0.2 }, // D
-                { note: 659, dur: 0.2 }, // E
-                { note: 523, dur: 0.2 }, // C
-                { note: 659, dur: 0.2 }, // E
-                { note: 698, dur: 0.2 }, // F
-                { note: 659, dur: 0.4 }, // E
-                { note: 587, dur: 0.2 }, // D
-                { note: 523, dur: 0.2 }, // C
-                { note: 587, dur: 0.2 }, // D
-                { note: 659, dur: 0.2 }, // E
-                { note: 587, dur: 0.2 }, // D
-                { note: 523, dur: 0.2 }, // C
-                { note: 493, dur: 0.2 }, // B
-                { note: 523, dur: 0.4 }, // C
+                { note: 523, dur: 0.2 },
+                { note: 587, dur: 0.2 },
+                { note: 659, dur: 0.2 },
+                { note: 523, dur: 0.2 },
+                { note: 659, dur: 0.2 },
+                { note: 698, dur: 0.2 },
+                { note: 659, dur: 0.4 },
+                { note: 587, dur: 0.2 },
+                { note: 523, dur: 0.2 },
+                { note: 587, dur: 0.2 },
+                { note: 659, dur: 0.2 },
+                { note: 587, dur: 0.2 },
+                { note: 523, dur: 0.2 },
+                { note: 493, dur: 0.2 },
+                { note: 523, dur: 0.4 },
             ];
             
             let noteIndex = 0;
@@ -962,7 +999,6 @@
             bgmInterval = setInterval(playNextNote, 250);
         }
 
-        // BGM 정지
         function stopBGM() {
             if (bgmInterval) {
                 clearInterval(bgmInterval);
@@ -970,16 +1006,15 @@
             }
         }
 
-        // 게임오버 음악
         function playGameOverMusic() {
             if (isMuted) return;
             
             const sadMelody = [
-                { note: 392, dur: 0.4 }, // G
-                { note: 349, dur: 0.4 }, // F
-                { note: 330, dur: 0.4 }, // E
-                { note: 294, dur: 0.6 }, // D
-                { note: 262, dur: 0.8 }, // C
+                { note: 392, dur: 0.4 },
+                { note: 349, dur: 0.4 },
+                { note: 330, dur: 0.4 },
+                { note: 294, dur: 0.6 },
+                { note: 262, dur: 0.8 },
             ];
             
             let delay = 0;
@@ -997,6 +1032,9 @@
         let gameActive = false;
         let timerInterval = null;
         let timeLeft = 130;
+
+        // 생선 색상
+        const fishColors = ['orange', 'blue', 'pink', 'green', 'purple', 'gold'];
 
         // 랜덤 대사
         const yumMessages = [
@@ -1019,6 +1057,7 @@
         const scoreDisplay = document.getElementById('score');
         const finalScoreEl = document.getElementById('final-score');
         const fish = document.getElementById('fish');
+        const fishBody = document.getElementById('fish-body');
         const fishQuestion = document.getElementById('fish-question');
         const upperJaw = document.getElementById('upper-jaw');
         const lowerTeeth = document.getElementById('lower-teeth');
@@ -1041,15 +1080,32 @@
             }
         });
 
-        // 곱셈 문제 생성
+        // 문제 생성 (곱셈 + 나눗셈)
         function generateQuestion() {
-            const a = Math.floor(Math.random() * 9) + 1;
-            const b = Math.floor(Math.random() * 9) + 1;
-            currentAnswer = a * b;
-            fishQuestion.textContent = `${a}×${b}`;
+            // 랜덤으로 곱셈 또는 나눗셈 선택
+            const isMultiplication = Math.random() < 0.5;
+            
+            if (isMultiplication) {
+                // 곱셈
+                const a = Math.floor(Math.random() * 9) + 1;
+                const b = Math.floor(Math.random() * 9) + 1;
+                currentAnswer = a * b;
+                fishQuestion.textContent = `${a}×${b}`;
+            } else {
+                // 나눗셈 (나누어 떨어지는 문제만)
+                const b = Math.floor(Math.random() * 9) + 1; // 나누는 수
+                const answer = Math.floor(Math.random() * 9) + 1; // 답
+                const a = b * answer; // 나눠지는 수
+                currentAnswer = answer;
+                fishQuestion.textContent = `${a}÷${b}`;
+            }
+            
             inputAnswer = [];
             selectedButtons = [];
             updateThroatAnswer();
+            
+            // 생선 색상 랜덤 변경
+            fishBody.className = 'fish-body ' + fishColors[Math.floor(Math.random() * fishColors.length)];
             
             document.querySelectorAll('.tooth-btn').forEach(btn => {
                 btn.classList.remove('selected');
