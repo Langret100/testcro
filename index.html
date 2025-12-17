@@ -106,6 +106,35 @@
             box-shadow: 0 4px 0 #c94444;
         }
 
+        /* 전체화면 버튼 */
+        #fullscreen-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.25);
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 110;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        #fullscreen-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        #fullscreen-btn:active {
+            transform: scale(0.95);
+        }
+
         /* 게임 화면 */
         #game-screen {
             display: none;
@@ -792,6 +821,14 @@
 <body>
     <!-- 시작 화면 -->
     <div id="start-screen">
+        <button id="fullscreen-btn" title="전체화면">
+            <svg id="fs-expand" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+            <svg id="fs-compress" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="display:none;">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+            </svg>
+        </button>
         <div class="title">🐊 악어의 숫자 식사</div>
         <div class="start-croc">🐊</div>
         <div class="instructions">
@@ -1353,6 +1390,41 @@
         // 이벤트 리스너
         startBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', startGame);
+
+        // 전체화면 토글
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const fsExpand = document.getElementById('fs-expand');
+        const fsCompress = document.getElementById('fs-compress');
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        function updateFullscreenIcon() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                fsExpand.style.display = 'none';
+                fsCompress.style.display = 'block';
+            } else {
+                fsExpand.style.display = 'block';
+                fsCompress.style.display = 'none';
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
 
         document.querySelectorAll('.tooth-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
